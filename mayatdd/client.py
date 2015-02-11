@@ -5,13 +5,14 @@ import os
 import inspect
 import importlib
 
+lastTestExecutionOutput = ''
+
 def runSuite(suite):
     '''
     runs provided test suite inside current python interpreter,
     capturing all test output into module global 'lastTestExecutionOutput'
     '''
     global lastTestExecutionOutput
-    lastTestExecutionOutput = ''
     try:
         output = StringIO.StringIO()
         backupStdOut = sys.stdout
@@ -45,8 +46,12 @@ def isTestsClass(c):
     return False; 
 
 def decorateTestMethods(c):
-   
+    '''
+    detect all test methods in a class and decorate it so that it 
+    prints a test name separator in output log.
     
+    returns all found test methods for convenience
+    '''
     allTestMethods = []
     
     for methodName,method in list(inspect.getmembers(c, inspect.ismethod))[:]:
@@ -68,11 +73,14 @@ def decorateTestMethods(c):
         
     return allTestMethods
 
-def dropCachedImports(*modulesToUnload):
+def dropCachedImports(*packagesToUnload):
+    '''
+    prepares maya to re-import 
+    '''
     
     def shouldUnload(module):
-        for moduleToUnload in modulesToUnload:
-            if module.startswith(moduleToUnload):
+        for packageToUnload in packagesToUnload:
+            if module.startswith(packageToUnload):
                 return True
         return False
         
@@ -82,18 +90,17 @@ def dropCachedImports(*modulesToUnload):
             print "unloading module ", i
             del sys.modules[i]   
 
-def launch(testsRootModuleName,testName):
+def launch(testsRootPackageName,testName):
     '''
     testsAll: module importing all suite tests;
     testName: None for all tests; Class.testName for single test launch; <Class> for all tests in a class
     '''
-    rootModule = importlib.import_module(testsRootModuleName)
-    setup = importlib.import_module(testsRootModuleName+'.setup')
+    rootModule = importlib.import_module(testsRootPackageName)
+    setup = importlib.import_module(testsRootPackageName+'.setup')
     dropCachedImports(*setup.reloadModules)
     
-    packageRoot = os.path.dirname(rootModule.__file__)
-    print "launching tests from",packageRoot
     
+    packageRoot = os.path.dirname(rootModule.__file__)
 
     singleClass = None # all
     singleMethod = None # all
@@ -123,22 +130,21 @@ def launch(testsRootModuleName,testName):
                                 
     for root, dirs, files in os.walk(packageRoot):
         if root==packageRoot:
-            fromList = testsRootModuleName
+            fromList = testsRootPackageName
         else:
-            fromList = testsRootModuleName+'.'+root[len(packageRoot)+1:].replace(os.sep,".")
+            fromList = testsRootPackageName+'.'+root[len(packageRoot)+1:].replace(os.sep,".")
             
-        print root
-        
         for f in files:
             if f.endswith(".py"):
                 try:
                     module = importlib.import_module(fromList+'.'+f[:-3])
-                except:
-                    print "import fail"
-                    # import fail - whatever.
+                except Exception,err:
+                    print "import fail",err
+                    sys.stdout.flush()
                     continue;
                 
                 discoverTestsInModule(module);
-
-    
+                
+    print "launching suite..."
     runSuite(testSuite)
+    print "done."

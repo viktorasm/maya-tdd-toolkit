@@ -51,7 +51,7 @@ class Launcher:
         if not os.path.exists(scriptsDir):
             os.makedirs(scriptsDir)
         
-        shutil.copy2(self.projectDir+'/maya_tdd/userSetup.py', scriptsDir)
+        shutil.copy2(os.path.dirname(__file__)+'/userSetup.py', scriptsDir)
         
     def launch(self):
         self.configure()

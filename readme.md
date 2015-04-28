@@ -5,17 +5,22 @@ I'm trying to publish some code in relation to my [TDD in Maya article](http://v
 ## Installation
 
 * Create your virtual environment
-	
+
+	```bash	
 	virtualenv venv
 	source venv/bin/activate
+	```
 
 * Install *dccautomation*: 
 
-    pip install git+https://github.com/rgalanakis/dccautomation.git
-    
+	```bash
+	pip install git+https://github.com/rgalanakis/dccautomation.git
+	```    
 * Install this package:
 
+	```bash
 	pip install git+https://github.com/viktorasm/maya-tdd-toolkit.git
+	```
 
 ## Sample project
 

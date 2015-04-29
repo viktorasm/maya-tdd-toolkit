@@ -24,6 +24,9 @@ class Launcher:
         self.pythonPath.append(os.path.abspath(os.path.dirname(dccautomation.__file__)+"/.."))
         # add self to path
         self.pythonPath.append(self.projectDir)
+        # add site-packages
+        from distutils.sysconfig import get_python_lib; 
+        self.pythonPath.append(get_python_lib())
         
         self.parseCommandLine()
             

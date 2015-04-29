@@ -7,6 +7,7 @@ import os
 import shutil
 
 import platform
+import dccautomation
 
 class Launcher:
     def __init__(self):
@@ -18,7 +19,11 @@ class Launcher:
         
         self.isWindows = 'windows' in platform.system().lower()
             
+        # add dcc automation
         self.pythonPath = []
+        self.pythonPath.append(os.path.abspath(os.path.dirname(dccautomation.__file__)+"/.."))
+        # add self to path
+        self.pythonPath.append(self.projectDir)
         
         self.parseCommandLine()
             
@@ -69,10 +74,15 @@ class Launcher:
         
         self.createEnvDir()
         
-        env['maya_test_pythonpath'] = ';'.join([self.projectDir]+self.pythonPath)
+        env['maya_test_pythonpath'] = ';'.join(self.pythonPath)
             
         options ={'env':env}
         if self.mayaPath is not None:
             options['cwd'] = self.mayaPath
-            
+
+        print "starting Maya with options:"
+        print "python path:",self.pythonPath      
+        print "environment template:",self.mayaEnvTemplateDir  
+        print "launch mode:",self.options.mode    
+        
         subprocess.Popen([self.mayaExecutable,'-nosplash'],**options).communicate()

@@ -2,12 +2,15 @@ from functools import wraps
 import inspect
 import sys
 import importlib
+import time
+import math
+import random
 insideMaya = False
 
 try:
     from maya import cmds
     # just assume that if cmds is available, we're inside maya
-    insideMaya = True
+    insideMaya = cmds.about(version=True) is not None
 except:
     pass
 
@@ -25,15 +28,6 @@ def outputRedirect(func):
             sys.stderr = backupStdErr
     return wrapped
 
-def decorateMayaTest(method):
-    m = method
-    def decorated(*args,**kwargs):
-        splitter = "-- TEST: "+m.im_class.__name__+"."+m.__name__
-        splitter += '-'*(80-len(splitter))+"\n"
-        sys.__stdout__.write(splitter)        
-        return m(*args,**kwargs);
-    return decorated
-
 def dropCachedImports(*packagesToUnload):
     '''
     prepares maya to re-import 
@@ -50,9 +44,18 @@ def dropCachedImports(*packagesToUnload):
         if shouldUnload(i):
             #print "unloading module ", i
             del sys.modules[i] 
+            
+
+
+currentTestSuite = random.randint(0,0xFFFF)
 
 @outputRedirect
-def launch(sysPath,setupModuleName,moduleName,className,testMethodName):
+def launch(testSuiteId,sysPath,setupModuleName,moduleName,className,testMethodName):
+    splitter = "-- TEST: "+className+"."+testMethodName
+    splitter += '-'*(80-len(splitter))+"\n"
+    sys.__stdout__.write(splitter)        
+
+    
     '''
     this gets called from within maya
     '''
@@ -60,18 +63,36 @@ def launch(sysPath,setupModuleName,moduleName,className,testMethodName):
         if sp not in sys.path:
             sys.path.append(sp)
             
-    setupModule = importlib.import_module(setupModuleName)
-    reload(setupModule)
-    dropCachedImports(*setupModule.reloadModules)
+    # check if current test suite changed, and run setup fo this suite if needed
+    suiteIdVar='mayatdd_currentTestSuite'
+    if not cmds.optionVar(exists=suiteIdVar) or cmds.optionVar(q=suiteIdVar)!=testSuiteId:
+        cmds.optionVar(iv=(suiteIdVar,testSuiteId))
+
+        setupModule = importlib.import_module(setupModuleName)
+        reload(setupModule)
+
+        if hasattr(setupModule, 'cleanUp'):
+            print "running tests cleanup hook"
+            setupModule.cleanUp()
+
+        # reload modules
+        print "running reloads"
+        dropCachedImports(*setupModule.reloadModules)
+        
+        # run one-time setup.py tests
+        if hasattr(setupModule, 'setup'):
+            print "running tests setup hook"
+            setupModule.setup()
     
     targetModule = importlib.import_module(moduleName)
     targetClass = getattr(targetModule, className)
     
     targetInstance = targetClass(testMethodName)
-    
+
     try:
         targetInstance.setUp()
         getattr(targetInstance, testMethodName)()
+        targetInstance.tearDown()
     except:
         import traceback;traceback.print_exc()
         raise
@@ -80,29 +101,39 @@ def mayaTest(setupModule):
     setupModule = sys.modules[setupModule]
     
     def decorator(cls):
+        if not insideMaya:
+            voidMethod = lambda *args,**kwargs:None
+            setattr(cls,'setUp',voidMethod)
+            setattr(cls, "tearDown", voidMethod)
+            
         
         for methodName,method in list(inspect.getmembers(cls, inspect.ismethod))[:]:
             if not methodName.startswith("test"):
                 continue
     
             if insideMaya:
-                decorated = decorateMayaTest(method)
+                decorated = method
                 
-            else:        
-                @wraps(method)
-                def decorated(*args,**kwargs):
-                    from dccautomation import inproc
-                    from dccautomation import configs as dcconf                    
-                    client = inproc.start_inproc_client(dcconf.Maya2015OSX(), 9025)
-                    
-                    sysPath = [] if not hasattr(setupModule, 'sysPath') else setupModule.sysPath
-                    
-                    command = 'import mayatdd.mayatest as mayatest;reload(mayatest);'+ \
-                        'mayatest.launch({!r},{!r},{!r},{!r},{!r})'.format(sysPath,setupModule.__name__,cls.__module__,cls.__name__,methodName)
+            else:   
+                def createDecoratedMethod(methodName,method):     
+                    def decorated(*args,**kwargs):
+                        from dccautomation import inproc
+                        from dccautomation import configs as dcconf                    
+                        client = inproc.start_inproc_client(dcconf.Maya2015OSX(), 9025)
                         
-                    client.exec_(command)
-                    print "done executing",cls.__name__+'.'+methodName
-                
+                        sysPath = [] if not hasattr(setupModule, 'sysPath') else setupModule.sysPath
+
+                        print "running {}.{}...".format(cls.__name__,methodName)
+                        global currentTestSuite
+                        
+                        command = 'import mayatdd.mayatest as mayatest;reload(mayatest);'+ \
+                            'mayatest.launch({!r},{!r},{!r},{!r},{!r},{!r})'.format(currentTestSuite,sysPath,setupModule.__name__,cls.__module__,cls.__name__,methodName)
+                            
+                        client.exec_(command)
+
+                        print "done executing",cls.__name__+'.'+methodName
+                    return wraps(method)(decorated)
+                decorated = createDecoratedMethod(methodName, method)
             setattr(cls,methodName,decorated)
         
         return cls

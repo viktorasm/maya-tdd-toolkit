@@ -15,7 +15,7 @@ info("Configuring Maya for test execution..")
 testPythonPath = os.environ.get('maya_test_pythonpath') 
 if testPythonPath is not None:
     for i in testPythonPath.split(";"):
-        info("adding test path: "+i)
+        info("adding python path: "+i)
         sys.path.append(i)
     
 import dccautomation

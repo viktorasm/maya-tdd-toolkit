@@ -28,7 +28,7 @@ class Launcher:
         self.parseCommandLine()
             
     def configure(self):
-        self.mayaEnvDir = self.mayaEnvTemplateDir+"_workingcopy"
+        self.mayaEnvDir = os.path.abspath(self.mayaEnvTemplateDir+"_workingcopy")
 
         if self.isWindows:
             self.mayaPath = os.path.dirname(self.mayaExecutable)

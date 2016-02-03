@@ -18,6 +18,7 @@ class Launcher:
         self.projectWorkspace = os.path.abspath(os.path.dirname(__file__)+"/../../")
         
         self.isWindows = 'windows' in platform.system().lower()
+        self.isLinux = 'linux' in platform.system().lower()
             
         # add dcc automation
         self.pythonPath = []
@@ -72,6 +73,8 @@ class Launcher:
         
         env.pop('PYTHONPATH',None)
         env.pop('PYTHONHOME',None)
+        env.pop('PYTHONIOENCODING',None)
+        env.pop('PYTHONUNBUFFERED',None)
         
         
         
@@ -88,4 +91,9 @@ class Launcher:
         print "environment template:",self.mayaEnvTemplateDir  
         print "launch mode:",self.options.mode    
         
-        subprocess.Popen([self.mayaExecutable,'-nosplash'],**options).communicate()
+        commandLine = [self.mayaExecutable,'-nosplash']
+        if self.isLinux:
+            commandLine = ["/bin/csh","-f"]+commandLine
+        print "command line:"," ".join(commandLine)
+        
+        subprocess.Popen(commandLine,**options).communicate()

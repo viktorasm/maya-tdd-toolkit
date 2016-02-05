@@ -2,19 +2,16 @@ from functools import wraps
 import inspect
 import sys
 import importlib
-import time
-import math
 import random
 import pickle
 import base64
-insideMaya = False
 
 try:
     from maya import cmds
     # just assume that if cmds is available, we're inside maya
     insideMaya = cmds.about(version=True) is not None
 except:
-    pass
+    insideMaya = False
 
 def outputRedirect(func):
     def wrapped(*args,**kwargs):

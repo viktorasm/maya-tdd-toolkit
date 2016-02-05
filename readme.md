@@ -11,11 +11,6 @@ I'm trying to publish some code in relation to my [TDD in Maya article](http://v
 	source venv/bin/activate
 	```
 
-* Install *dccautomation*: 
-
-	```bash
-	pip install git+https://github.com/rgalanakis/dccautomation.git
-	```    
 * Install this package:
 
 	```bash

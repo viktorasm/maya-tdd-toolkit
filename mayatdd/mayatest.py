@@ -89,12 +89,11 @@ def launch(testSuiteId,sysPath,setupModuleName,moduleName,className,testMethodNa
     
     targetInstance = targetClass(testMethodName)
 
+    targetInstance.setUp()
     try:
-        targetInstance.setUp()
         getattr(targetInstance, testMethodName)()
+    finally:
         targetInstance.tearDown()
-    except:
-        import traceback;traceback.print_exc()
         
 def serverHandler(request):
     def mainThreadHandler(request):

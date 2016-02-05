@@ -7,22 +7,23 @@ import os
 import shutil
 
 import platform
-import dccautomation
 
 class Launcher:
     def __init__(self):
-        self.mayaExecutable='maya'
+        self.isWindows = 'windows' in platform.system().lower()
+        self.isLinux = 'linux' in platform.system().lower()
+            
+        self.mayaExecutable=os.path.join(os.environ['MAYA_HOME'],'bin','maya')
+        if self.isWindows:
+            self.mayaExecutable += ".exe"
+        
         self.mayaPath = None
         self.projectDir = os.path.abspath(os.path.dirname(__file__)+"/..")
         self.mayaEnvTemplateDir = self.projectDir+'/testMayaLaunchEnvironment_snapshot'
         self.projectWorkspace = os.path.abspath(os.path.dirname(__file__)+"/../../")
         
-        self.isWindows = 'windows' in platform.system().lower()
-        self.isLinux = 'linux' in platform.system().lower()
-            
         # add dcc automation
         self.pythonPath = []
-        self.pythonPath.append(os.path.abspath(os.path.dirname(dccautomation.__file__)+"/.."))
         # add self to path
         self.pythonPath.append(self.projectDir)
         # add site-packages

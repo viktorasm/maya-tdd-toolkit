@@ -17,12 +17,9 @@ if testPythonPath is not None:
     for i in testPythonPath.split(";"):
         info("adding python path: "+i)
         sys.path.append(i)
-    
-import dccautomation
-from dccautomation import configs as dcconf
 
-info("Starting dccautomation server...")
+from mayatdd import mayatest, server
 
-dccautomation.start_inproc_server(dcconf.Maya2015OSX(), 9025)
-
+info("Starting TDD server...")
+server.Server(9025).run(mayatest.serverHandler)
 info("Maya is ready for some tests!")

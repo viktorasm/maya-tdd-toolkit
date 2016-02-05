@@ -2,13 +2,10 @@ from setuptools import setup
 
 setup(
     name="mayatdd",
-    version="0.0.1",
+    version="0.0.2",
     packages=["mayatdd"],
     include_package_data = True,
-    install_requires=[
-        "dccautomation"],
+    install_requires=[],
 
-    dependency_links=[
-        "git+ssh://git@github.com:rgalanakis/dccautomation.git#egg=dccautomation-0.1.0"
-    ],
+    dependency_links=[],
 )

@@ -11,7 +11,7 @@ import urllib2
 class Client:
     def __init__(self,host,port):
         self.timeout = 300
-        self.endpoint = "http://{}:{}".format(host,port)
+        self.endpoint = "http://{0}:{1}".format(host,port)
         
     def send(self,jsonDictionary):
         '''

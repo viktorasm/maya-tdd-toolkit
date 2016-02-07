@@ -133,7 +133,7 @@ def mayaTest(setupModule):
                         
                         sysPath = [] if not hasattr(setupModule, 'sysPath') else setupModule.sysPath
 
-                        print "running {}.{}...".format(cls.__name__,methodName)
+                        print "running {0}.{1}...".format(cls.__name__,methodName)
                         global currentTestSuite
                         
                         response = client.send({

@@ -13,6 +13,7 @@ class ServerTest(unittest.TestCase):
         validate that server-client connection is happening and that handler is installed correctly
         '''
         def fakeHandler(request):
+            print 'starting handler'
             if request=={'a':'b'}:
                 return {'c':'d'}
             else:

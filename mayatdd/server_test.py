@@ -20,8 +20,8 @@ class ServerTest(unittest.TestCase):
             
         self.server.run(fakeHandler)
 
-        client = server.Client("127.0.0.1",self.port)
         for i in range(100):
+            client = server.Client("127.0.0.1",self.port)
             result = client.send({'a':'b'})
             self.assertEquals(result, {'c':'d'})
         

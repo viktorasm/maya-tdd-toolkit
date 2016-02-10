@@ -129,7 +129,7 @@ def mayaTest(setupModule):
                 def createDecoratedMethod(methodName,method):     
                     def decorated(*args,**kwargs):
                         import server
-                        client = server.Client("localhost", 9025)
+                        client = server.Client("127.0.0.1", 9025)
                         
                         sysPath = [] if not hasattr(setupModule, 'sysPath') else setupModule.sysPath
 
@@ -144,6 +144,7 @@ def mayaTest(setupModule):
                             'className': cls.__name__,
                             'testMethodName': methodName
                         })
+                        
                         if response['result']=='exception':
                             print response['stackTrace']
                             raise pickle.loads(base64.b64decode(response['exception']))

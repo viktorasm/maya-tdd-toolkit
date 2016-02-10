@@ -21,8 +21,9 @@ class ServerTest(unittest.TestCase):
         self.server.run(fakeHandler)
 
         client = server.Client("127.0.0.1",self.port)
-        result = client.send({'a':'b'})
-        self.assertEquals(result, {'c':'d'})
+        for i in range(100):
+            result = client.send({'a':'b'})
+            self.assertEquals(result, {'c':'d'})
         
     def tearDown(self):
         self.server.stop()

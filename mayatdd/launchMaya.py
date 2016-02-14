@@ -54,7 +54,8 @@ class Launcher:
             self.options.mode = 'test'
             
     def createEnvDir(self):
-        shutil.rmtree(self.mayaEnvDir,ignore_errors=True)
+        if os.path.exists(self.mayaEnvDir):
+            shutil.rmtree(self.mayaEnvDir,ignore_errors=False)
         shutil.copytree(self.mayaEnvTemplateDir, self.mayaEnvDir)
         
         scriptsDir = self.mayaEnvDir+'/scripts'

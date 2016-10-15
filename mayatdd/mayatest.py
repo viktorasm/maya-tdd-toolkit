@@ -12,6 +12,9 @@ try:
     insideMaya = cmds.about(version=True) is not None
 except:
     insideMaya = False
+    
+    
+serverPort = 9025
 
 def outputRedirect(func):
     def wrapped(*args,**kwargs):
@@ -129,7 +132,7 @@ def mayaTest(setupModule):
                 def createDecoratedMethod(methodName,method):     
                     def decorated(*args,**kwargs):
                         import server
-                        client = server.Client("127.0.0.1", 9025)
+                        client = server.Client("127.0.0.1", serverPort)
                         
                         sysPath = [] if not hasattr(setupModule, 'sysPath') else setupModule.sysPath
 

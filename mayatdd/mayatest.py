@@ -16,6 +16,7 @@ except:
     
 serverPort = 9025
 
+
 def outputRedirect(func):
     def wrapped(*args,**kwargs):
         backupStdOut = sys.stdout
@@ -105,7 +106,6 @@ def serverHandler(request):
             return {'result':'success'}
         except Exception,e:
             import traceback;traceback.print_exc()
-            #return {'result':'exception','exception':pickle.dumps(e, pickle.HIGHEST_PROTOCOL)}
             return {'result':'exception','exception':base64.b64encode(pickle.dumps(e, pickle.HIGHEST_PROTOCOL)),'stackTrace':traceback.format_exc()}
         
     from maya.utils import executeInMainThreadWithResult
@@ -149,9 +149,8 @@ def mayaTest(setupModule):
                         })
                         
                         if response['result']=='exception':
-                            print response['stackTrace']
-                            raise pickle.loads(base64.b64decode(response['exception']))
-                            
+                            raise Exception(response['stackTrace'])
+
                         print "done executing",cls.__name__+'.'+methodName
                     return wraps(method)(decorated)
                 decorated = createDecoratedMethod(methodName, method)

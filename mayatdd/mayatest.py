@@ -86,8 +86,12 @@ def launch(testSuiteId,sysPath,setupModuleName,moduleName,className,testMethodNa
         # run one-time setup.py tests
         if hasattr(setupModule, 'setup'):
             print "running tests setup hook"
+
+
+
+
             setupModule.setup()
-    
+
     targetModule = importlib.import_module(moduleName)
     targetClass = getattr(targetModule, className)
     
@@ -138,15 +142,16 @@ def mayaTest(setupModule):
 
                         print "running {0}.{1}...".format(cls.__name__,methodName)
                         global currentTestSuite
-                        
-                        response = client.send({
+                        request = {
                             'testSuiteId': currentTestSuite,
                             'sysPath': sysPath,
                             'setupModuleName': setupModule.__name__,
-                            'moduleName': cls.__module__, 
+                            'moduleName': cls.__module__,
                             'className': cls.__name__,
                             'testMethodName': methodName
-                        })
+                        }
+
+                        response = client.send(request)
                         
                         if response['result']=='exception':
                             raise Exception(response['stackTrace'])

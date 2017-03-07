@@ -6,6 +6,8 @@ import random
 import pickle
 import base64
 
+import functools
+
 try:
     from maya import cmds
     # just assume that if cmds is available, we're inside maya
@@ -18,6 +20,7 @@ serverPort = 9025
 
 
 def outputRedirect(func):
+    @functools.wraps(func)
     def wrapped(*args,**kwargs):
         backupStdOut = sys.stdout
         backupStdErr = sys.stderr
@@ -131,7 +134,11 @@ def mayaTest(setupModule):
     
             if insideMaya:
                 decorated = method
-                
+
+                # if test wrapper exists, use it for "decorated" value
+                if hasattr(setupModule, 'testWrapper'):
+                    decorated = setupModule.testWrapper(method)
+
             else:   
                 def createDecoratedMethod(methodName,method):     
                     def decorated(*args,**kwargs):

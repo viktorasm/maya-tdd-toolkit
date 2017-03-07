@@ -22,7 +22,7 @@ class Client:
         data = json.dumps(jsonDictionary)
         response = urllib2.urlopen(self.endpoint, data=data, timeout=self.timeout)
         return json.loads(response.read())
-        
+
 
 class Server:
     def __init__(self,port):
@@ -34,7 +34,7 @@ class Server:
         
             def do_GET(self):
                 self.wfile.write("maya tdd server\n")
-        
+
             def do_POST(self):
                 request = self.rfile.read(int(self.headers['Content-Length']))
                 request = json.loads(request)

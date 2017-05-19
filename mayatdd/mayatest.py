@@ -17,6 +17,7 @@ except:
     
     
 serverPort = 9025
+lastTestExecution = None
 
 
 def outputRedirect(func):
@@ -100,12 +101,17 @@ def launch(testSuiteId,sysPath,setupModuleName,moduleName,className,testMethodNa
     
     targetInstance = targetClass(testMethodName)
 
-    targetInstance.setUp()
-    try:
-        getattr(targetInstance, testMethodName)()
-    finally:
-        targetInstance.tearDown()
-        
+    def testExecution():
+        targetInstance.setUp()
+        try:
+            getattr(targetInstance, testMethodName)()
+        finally:
+            targetInstance.tearDown()
+
+    testExecution()
+    global lastTestExecution
+    lastTestExecution = testExecution
+
 def serverHandler(request):
     def mainThreadHandler(request):
         try:

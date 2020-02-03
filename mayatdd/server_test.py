@@ -1,9 +1,11 @@
 import unittest
-import server
+
+from mayatdd import server
 
 
 class ServerTest(unittest.TestCase):
     def setUp(self):
+        self.server = None
         self.port = 6777
         self.server = server.Server(self.port)
 
@@ -26,4 +28,5 @@ class ServerTest(unittest.TestCase):
             self.assertEquals(result, {'c': 'd'})
 
     def tearDown(self):
-        self.server.stop()
+        if self.server is not None:
+            self.server.stop()

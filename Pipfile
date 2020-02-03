@@ -6,6 +6,4 @@ name = "pypi"
 [dev-packages]
 
 [packages]
-
-[requires]
-python_version = "2.7"
+pytest = "*"

@@ -4,6 +4,14 @@ simple RPC over HTTP
 
 import threading
 import json
+import socket
+
+try:
+    from BaseHTTPServer import BaseHTTPRequestHandler
+    from SocketServer import TCPServer
+except:
+    from http.server import BaseHTTPRequestHandler
+    from socketserver import TCPServer
 
 
 class Client:
@@ -29,18 +37,13 @@ class Client:
 
 
 class Server:
+
     def __init__(self, port):
         self.port = port
         self.instance = None
+        self.instance_thread = None
 
     def run(self, requestHandlerMethod):
-        try:
-            from BaseHTTPServer import BaseHTTPRequestHandler
-            from SocketServer import TCPServer
-        except:
-            from http.server import BaseHTTPRequestHandler
-            from socketserver import TCPServer
-
         class RequestHandler(BaseHTTPRequestHandler):
 
             def do_GET(self):
@@ -55,8 +58,15 @@ class Server:
                 self.end_headers()
                 self.wfile.write(json.dumps(result).encode("utf-8"))
 
-        self.instance = TCPServer(("", self.port), RequestHandler)
-        threading.Thread(target=self.instance.serve_forever).start()
+        self.instance = TCPServer(("", self.port), RequestHandler, bind_and_activate=False)
+        self.instance.allow_reuse_address = True
+        self.instance.server_bind()
+        self.instance.server_activate()
+        self.instance_thread = threading.Thread(target=self.instance.serve_forever)
+        self.instance_thread.start()
 
     def stop(self):
-        self.instance.shutdown()
+        if self.instance is not None:
+            self.instance.shutdown()
+            self.instance_thread.join()
+            self.instance.server_close()

@@ -6,7 +6,7 @@ from mayatdd import server
 class ServerTest(unittest.TestCase):
     def setUp(self):
         self.server = None
-        self.port = 6777
+        self.port = 6778
         self.server = server.Server(self.port)
 
     def testConnect(self):
@@ -15,8 +15,8 @@ class ServerTest(unittest.TestCase):
         '''
 
         def fakeHandler(request):
-            if request == {'a': 'b'}:
-                return {'c': 'd'}
+            if "validRequest" in request:
+                return {'response': request['validRequest']}
             else:
                 return 'not the right thing received'
 
@@ -24,8 +24,8 @@ class ServerTest(unittest.TestCase):
 
         for i in range(100):
             client = server.Client("127.0.0.1", self.port)
-            result = client.send({'a': 'b'})
-            self.assertEquals(result, {'c': 'd'})
+            result = client.send({'validRequest': i})
+            self.assertEqual(result, {'response': i})
 
     def tearDown(self):
         if self.server is not None:

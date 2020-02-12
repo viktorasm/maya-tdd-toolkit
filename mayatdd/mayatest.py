@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from functools import wraps
 import inspect
 import sys
@@ -7,6 +9,7 @@ import pickle
 import base64
 
 import functools
+from imp import reload
 
 try:
     from maya import cmds
@@ -80,19 +83,16 @@ def launch(testSuiteId,sysPath,setupModuleName,moduleName,className,testMethodNa
         reload(setupModule)
 
         if hasattr(setupModule, 'cleanUp'):
-            print "running tests cleanup hook"
+            print("running tests cleanup hook")
             setupModule.cleanUp()
 
         # reload modules
-        print "running reloads"
+        print("running reloads")
         dropCachedImports(*setupModule.reloadModules)
         
         # run one-time setup.py tests
         if hasattr(setupModule, 'setup'):
-            print "running tests setup hook"
-
-
-
+            print("running tests setup hook")
 
             setupModule.setup()
 
@@ -117,7 +117,7 @@ def serverHandler(request):
         try:
             launch(**request)
             return {'result':'success'}
-        except Exception,e:
+        except Exception as e:
             import traceback;traceback.print_exc()
             return {'result':'exception','exception':base64.b64encode(pickle.dumps(e, pickle.HIGHEST_PROTOCOL)),'stackTrace':traceback.format_exc()}
         
@@ -153,7 +153,7 @@ def mayaTest(setupModule):
                         
                         sysPath = [] if not hasattr(setupModule, 'sysPath') else setupModule.sysPath
 
-                        print "running {0}.{1}...".format(cls.__name__,methodName)
+                        print("running {0}.{1}...".format(cls.__name__, methodName))
                         global currentTestSuite
                         request = {
                             'testSuiteId': currentTestSuite,
@@ -169,7 +169,8 @@ def mayaTest(setupModule):
                         if response['result']=='exception':
                             raise Exception(response['stackTrace'])
 
-                        print "done executing",cls.__name__+'.'+methodName
+                        print("done executing", cls.__name__ + '.' + methodName)
+
                     return wraps(method)(decorated)
                 decorated = createDecoratedMethod(methodName, method)
             setattr(cls,methodName,decorated)

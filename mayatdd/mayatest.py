@@ -134,7 +134,7 @@ def mayaTest(setupModule):
             setattr(cls, "tearDown", voidMethod)
             
         
-        for methodName,method in list(inspect.getmembers(cls, inspect.ismethod))[:]:
+        for methodName,method in list(inspect.getmembers(cls, inspect.isfunction))[:]:
             if not methodName.startswith("test"):
                 continue
     
@@ -148,7 +148,7 @@ def mayaTest(setupModule):
             else:   
                 def createDecoratedMethod(methodName,method):     
                     def decorated(*args,**kwargs):
-                        import server
+                        from . import server
                         client = server.Client("127.0.0.1", serverPort)
                         
                         sysPath = [] if not hasattr(setupModule, 'sysPath') else setupModule.sysPath

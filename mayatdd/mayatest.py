@@ -49,10 +49,10 @@ def dropCachedImports(*packagesToUnload):
                 return True
         return False
         
-    
-    for i in sys.modules.keys()[:]:
+    all_modules = [i for i in sys.modules.keys()]
+    for i in all_modules:
         if shouldUnload(i):
-            #print "unloading module ", i
+            print("unloading module ", i)
             del sys.modules[i] 
             
 
@@ -119,10 +119,13 @@ def serverHandler(request):
             return {'result':'success'}
         except Exception as e:
             import traceback;traceback.print_exc()
-            return {'result':'exception','exception':base64.b64encode(pickle.dumps(e, pickle.HIGHEST_PROTOCOL)),'stackTrace':traceback.format_exc()}
-        
+            #return {'result':'exception','exception': str(e)base64.b64encode(pickle.dumps(e, pickle.HIGHEST_PROTOCOL)).encode("utf-8"),'stackTrace':traceback.format_exc()}
+            return {'result':'exception','exception': str(e),'stackTrace':traceback.format_exc()}
+
     from maya.utils import executeInMainThreadWithResult
-    return executeInMainThreadWithResult(mainThreadHandler,request) 
+    result =  executeInMainThreadWithResult(mainThreadHandler,request)
+    print("execute in main thread returned:", repr(result))
+    return result
     
 def mayaTest(setupModule):
     setupModule = sys.modules[setupModule]

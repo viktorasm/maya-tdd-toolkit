@@ -124,7 +124,6 @@ def serverHandler(request):
 
     from maya.utils import executeInMainThreadWithResult
     result =  executeInMainThreadWithResult(mainThreadHandler,request)
-    print("execute in main thread returned:", repr(result))
     return result
     
 def mayaTest(setupModule):

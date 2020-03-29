@@ -43,11 +43,16 @@ class Server:
         self.instance = None
         self.instance_thread = None
 
+
     def run(self, requestHandlerMethod):
         class RequestHandler(BaseHTTPRequestHandler):
 
             def do_GET(self):
                 self.wfile.write("maya tdd server\n")
+
+            def log_message(self, format, *args):
+                return
+
 
             def do_POST(self):
                 request = self.rfile.read(int(self.headers['Content-Length']))

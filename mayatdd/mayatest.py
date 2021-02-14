@@ -128,15 +128,14 @@ def serverHandler(request):
     
 def mayaTest(setupModule):
     setupModule = sys.modules[setupModule]
-    
+
     def decorator(cls):
         if not insideMaya:
             voidMethod = lambda *args,**kwargs:None
             setattr(cls,'setUp',voidMethod)
             setattr(cls, "tearDown", voidMethod)
             
-        
-        for methodName,method in list(inspect.getmembers(cls, inspect.isfunction))[:]:
+        for methodName,method in list(inspect.getmembers(cls, lambda x: inspect.ismethod(x) or inspect.isfunction(x)))[:]:
             if not methodName.startswith("test"):
                 continue
     
